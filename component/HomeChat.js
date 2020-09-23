@@ -8,13 +8,11 @@
 
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
     StyleSheet,
     Image,
     View,
     Text,
     TextInput,
-    TouchableOpacity,
     ImageBackground,
     Button
 } from 'react-native';
@@ -28,81 +26,93 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import { Container } from 'native-base';
 import io from "socket.io-client";
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 
-export function HomeChat({ navigation }) {
+export default class HomeChat extends React.Component {
 
-    const [chatMessage, setChatMessage] = useState('')
-    const [chatMessages, setChatMessages] = useState([])
+    // const [chatMessage, setChatMessage] = useState('')
+    // const [chatMessages, setChatMessages] = useState([])
 
-    //   constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //       chatMessage: "",
-    //       chatMessages: []
-    //     };
-    //   }
+    constructor({ props }) {
+        super(props);
+        this.state = {
+            chatMessage: "",
+            chatMessages: [],
+            name: '',
+            obj: {}
+        };
+    }
 
     submitChatMessage = () => {
-        if (chatMessage !== '') {
-            socket.emit('chat message', chatMessage);
+        if (this.state.chatMessage !== '') {
+            this.socket.emit('chat message', {name: this.state.name, chatMessage: this.state.chatMessage});
+            // this.setState({ obj: { name: this.state.name, chatMessage: this.state.chatMessage } });
         }
-        setChatMessage('');
+        this.setState({ chatMessage: '' });
     }
 
     componentDidMount = () => {
-        socket = io("http://192.168.137.1:3000");
-        socket.on("chat message", msg => {
-            setChatMessages({
-                chatMessages: [...chatMessages, msg]
+        this.setState({ name: this.props.route.params.name });
+        this.socket = io("http://192.168.137.1:3000");
+        this.socket.on("chat message", obj => {
+            this.setState({
+                chatMessages: [...this.state.chatMessages, obj]
             });
         });
     }
 
-    // render() {
-    const Messages = chatMessages.map(chatMessage => (
-        <View>
-            <Text style={styles.message}>{chatMessage}</Text>
-            <Image source={require('../images/avatar.png')}></Image>
-        </View>
-    ));
+    render() {
+        const Messages = this.state.chatMessages.map((chatmess) => {
+            switch (chatmess.name) {
+                case this.state.name:
+                    return (
+                        <View style={styles.chatRight}>
+                            <Image style={styles.avatarR} source={require('../images/avatar.png')}></Image>
+                            <View style={styles.messageRight}>
+                                <Text style={styles.messageNameR}>{chatmess.name}</Text>
+                                <Text style={styles.messageR}>{chatmess.chatMessage}</Text>
+                            </View>
+                        </View>
+                    );
+                default:
+                    return (
+                        <View style={styles.chatLeft}>
+                            <Image style={styles.avatarL} source={require('../images/avatar.png')}></Image>
+                            <View style={styles.messageLeft}>
+                                <Text style={styles.messageNameL}>{chatmess.name}</Text>
+                                <Text style={styles.messageL}>{chatmess.chatMessage}</Text>
+                            </View>
+                        </View>
+                    );
+            }
+        });
 
-    return (
-        <View style={styles.container}>
-            {/* <Container>
-            <Header style={styles.header}>
-                <View>
-                    <Text style={styles.title}>List</Text>
-                </View>
-            </Header>
-            </Container> */}
-
-            <ImageBackground
-                style={styles.bg}
-                source={require('../images/bgchat.png')}>
-                {Messages}
-                <View style={styles.bottom}>
-                    <TextInput
-                        style={styles.textInput}
-                        autoCorrect={false}
-                        placeholder={'Message...'}
-                        value={chatMessage}
-                        onChangeText={(value) => setChatMessage(value)}
-                    />
-                    {/* <TouchableOpacity style={styles.btnSend}>
-              <Image style={styles.btnSend}
-                sourse={require('./images/send.png')}></Image>
-            </TouchableOpacity> */}
-                    <Button
-                        style={styles.btnSend}
-                        title='Send'
-                        onPress={() => submitChatMessage()}>
-                    </Button>
-                </View>
-            </ImageBackground>
-        </View>
-    );
+        return (
+            <View style={styles.container}>
+                <ImageBackground
+                    style={styles.bg}
+                    source={require('../images/bgchat.png')}>
+                    <ScrollView>{Messages}</ScrollView>
+                    <View style={styles.bottom}>
+                        <TextInput
+                            style={styles.textInput}
+                            autoCorrect={false}
+                            placeholder={'Message...'}
+                            value={this.state.chatMessage}
+                            onChangeText={chatMessage => {
+                                this.setState({ chatMessage });
+                            }} />
+                        <Button
+                            style={styles.btnSend}
+                            title='Send'
+                            onPress={() => this.submitChatMessage()}>
+                        </Button>
+                    </View>
+                </ImageBackground>
+            </View>
+        );
+    }
 }
-// };
 
 const styles = StyleSheet.create({
     container: {
@@ -131,15 +141,68 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
 
-    message: {
+    messageLeft: {
+        flexDirection: 'column',
+        marginRight: 5,
+        maxWidth: '70%',
+    },
+
+    chatRight: {
+        flexDirection: 'row-reverse',
+        marginTop: 10,
+    },
+
+    chatLeft: {
+        flexDirection: 'row',
+        marginTop: 10
+    },
+
+    avatarR: {
+        marginRight: 10,
+        height: 50,
+        width: 50,
+        marginTop: 'auto',
+        marginBottom: 5
+    },
+
+    messageNameR: {
+        marginLeft: 'auto',
+        color: 'white'
+    },
+
+    messageNameL: {
+        marginRight: 'auto',
+        color: 'white'
+    },
+
+    messageR: {
         padding: 10,
         backgroundColor: '#02aace',
         color: 'white',
-        borderTopLeftRadius: 17,
-        borderBottomLeftRadius: 17,
-        borderTopRightRadius: 17,
-        marginTop: 10,
-        marginBottom: 10
+        borderTopLeftRadius: 15,
+        borderBottomLeftRadius: 15,
+        borderTopRightRadius: 15,
+        marginBottom: 10,
+        marginTop: 5
+    },
+
+    avatarL: {
+        marginRight: 10,
+        height: 50,
+        width: 50,
+        marginTop: 'auto',
+        marginBottom: 5
+    },
+
+    messageL: {
+        padding: 10,
+        backgroundColor: 'white',
+        color: 'black',
+        borderTopLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        borderTopRightRadius: 15,
+        marginBottom: 10,
+        marginTop: 5
     },
 
     btnSend: {
@@ -147,5 +210,5 @@ const styles = StyleSheet.create({
     }
 });
 
-//Set-ExecutionPolicy -Scope Process-ExecutionPolicy Bypass
+//Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
