@@ -18,10 +18,13 @@
     "nodemon": "^2.0.4",
     "react": "16.13.1",
     "react-native": "0.63.2",
+    "react-native-agora": "^3.0.1",
     "react-native-gesture-handler": "^1.8.0",
     "react-native-reanimated": "^1.13.0",
+    "react-native-router-flux": "^4.2.0",
     "react-native-safe-area-context": "^3.1.8",
     "react-native-screens": "^2.11.0",
+    "react-native-vector-icons": "^7.1.0",
     "socket.io-client": "^2.3.0"
   },
   "devDependencies": {

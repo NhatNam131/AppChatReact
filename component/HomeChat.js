@@ -11,22 +11,20 @@ import {
     StyleSheet,
     Image,
     View,
-    Text,
     TextInput,
     ImageBackground,
     Button
 } from 'react-native';
 
 import {
-    Header,
     LearnMoreLinks,
     Colors,
     DebugInstructions,
     ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import { Container } from 'native-base';
+import { Container, Header, Text } from 'native-base';
 import io from "socket.io-client";
-import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { FlatList, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 export default class HomeChat extends React.Component {
 
@@ -45,7 +43,7 @@ export default class HomeChat extends React.Component {
 
     submitChatMessage = () => {
         if (this.state.chatMessage !== '') {
-            this.socket.emit('chat message', {name: this.state.name, chatMessage: this.state.chatMessage});
+            this.socket.emit('chat message', { name: this.state.name, chatMessage: this.state.chatMessage });
             // this.setState({ obj: { name: this.state.name, chatMessage: this.state.chatMessage } });
         }
         this.setState({ chatMessage: '' });
@@ -53,7 +51,7 @@ export default class HomeChat extends React.Component {
 
     componentDidMount = () => {
         this.setState({ name: this.props.route.params.name });
-        this.socket = io("http://192.168.137.1:3000");
+        this.socket = io("http://192.168.1.40:3000");
         this.socket.on("chat message", obj => {
             this.setState({
                 chatMessages: [...this.state.chatMessages, obj]
@@ -89,7 +87,17 @@ export default class HomeChat extends React.Component {
 
         return (
             <View style={styles.container}>
-                <ImageBackground
+                {/* <Container>
+                    <Header>
+                        <Text>Thực tập FPT</Text>
+                        <TouchableOpacity>
+                            <Image
+                                style={{ width: 30, height: 30, marginLeft: 'auto' }}
+                                source={require('../images/phone.png')}>
+                            </Image>
+                        </TouchableOpacity>
+                    </Header> */}
+                    <ImageBackground
                     style={styles.bg}
                     source={require('../images/bgchat.png')}>
                     <ScrollView>{Messages}</ScrollView>
@@ -109,6 +117,7 @@ export default class HomeChat extends React.Component {
                         </Button>
                     </View>
                 </ImageBackground>
+                {/* </Container> */}
             </View>
         );
     }
@@ -141,10 +150,16 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
 
+    messageRight: {
+        flexDirection: 'column',
+        marginRight: 5,
+        maxWidth: '75%',
+    },
+
     messageLeft: {
         flexDirection: 'column',
         marginRight: 5,
-        maxWidth: '70%',
+        maxWidth: '75%',
     },
 
     chatRight: {

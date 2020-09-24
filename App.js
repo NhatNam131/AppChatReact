@@ -19,7 +19,7 @@ function App() {
         <Stack.Screen
           name="HomeChat"
           component={HomeChat}
-          options={{ title: 'Thực tập FPT' }}
+          options={{ title: 'Thực tập FPT'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
